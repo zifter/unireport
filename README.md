@@ -5,3 +5,11 @@
 [![my site](https://img.shields.io/badge/site-my%20blog-yellow.svg)](https://zifter.github.io/)
 
 # Unireport
+
+## Development
+### Install pre-commit hook
+
+```commandline
+pip install pre-commit
+pre-commit install
+```
