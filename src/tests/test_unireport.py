@@ -4,7 +4,8 @@ from unireport.unireport import Unireport
 
 def test_unireport_ctor():
     r = Unireport()
-    r.generate()
+    result = r.render_from_string("Hello, {{ name }}!", {"name": "world"})
+    assert result == "Hello, world!"
 
 
 def test_register_plugin_ok():

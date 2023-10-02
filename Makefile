@@ -36,10 +36,8 @@ open-coverage:
 
 .PHONY: docker-compose-up
 docker-compose-up:
-	echo "skip"
-	# cd dev && make configure up
+	cd dev && make configure up open
 
 .PHONY: docker-compose-down
 docker-compose-down:
-	echo "skip"
-	# cd dev && make down clean
+	cd dev && make down clean
