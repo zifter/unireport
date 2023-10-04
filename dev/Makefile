@@ -2,19 +2,19 @@ configure:
 	make clean
 
 up:
-	docker-compose up -d
+	COMPOSE_PROJECT_NAME=unireport docker-compose up -d
 
 start:
-	docker-compose start
+	COMPOSE_PROJECT_NAME=unireport docker-compose start
 
 down:
-	docker-compose down
+	COMPOSE_PROJECT_NAME=unireport docker-compose down
 
 clean:
-	docker-compose rm -f
+	COMPOSE_PROJECT_NAME=unireport docker-compose rm -f
 
 rm-volumes:
-	docker volume rm $(docker volume ls -q)
+	COMPOSE_PROJECT_NAME=unireport docker volume rm $(docker volume ls -q)
 
 open:
 	x-www-browser http://localhost:3000
