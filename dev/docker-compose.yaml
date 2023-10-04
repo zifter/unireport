@@ -1,4 +1,4 @@
-name: unireport-dev2
+name: unireport
 version: '3.8'
 
 networks:
