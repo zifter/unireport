@@ -36,7 +36,7 @@ open-coverage:
 
 .PHONY: docker-compose-up
 docker-compose-up:
-	cd dev && make configure up open
+	cd dev && make configure up
 
 .PHONY: docker-compose-down
 docker-compose-down:
