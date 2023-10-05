@@ -1,3 +1,54 @@
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+build-backend = "hatchling.build"
+requires = [
+  "hatch-vcs>=0.3",
+  "hatchling>=1.18",
+]
+
+[tool.distutils.bdist_wheel]
+universal = true
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.md"], content-type = "text/markdown"}
+
+[tool.isort]
+profile = "black"
+
+[tool.hatch.version]
+source = "vcs"
+
+[project]
+name = "unireport"
+description = "Generate reports by template for lots of different external services"
+authors = [
+    {name = "Aleh Strakachuk", email = "zifter.ai+unireport@gmail.com"},
+]
+
+urls.Homepage = "https://github.com/zifter/unireport"
+urls.Source = "https://github.com/zifter/unireport"
+urls.Tracker = "https://github.com/zifter/unireport/issues"
+requires-python = ">=3.10, <4"
+keywords = [
+    "grafana",
+    "report",
+    "template",
+    "backend",
+    "engine"
+]
+license = {text = "MIT"}
+classifiers = [
+    "Intended Audience :: Developers",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "Jinja2>=3.1",
+    "requests>=2.23.0",
+]
+optional-dependencies.testing = [
+    "pytest==7.4.1",
+    "pytest-cov==4.1.0",
+    "parameterized==0.9.0"
+]
+dynamic = ["version", "readme"]

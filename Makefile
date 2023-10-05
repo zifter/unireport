@@ -23,6 +23,10 @@ fix:
 build:
 	tox -e build_wheel
 
+.PHONY: publish-test
+publish-test:
+	tox -e test_upload
+
 .PHONY: publish
 publish:
 	tox -e pypi_upload
