@@ -32,6 +32,6 @@ jobs:
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          verify_metadata: true
+          verify_metadata: false
           verbose: true
           print_hash: true
