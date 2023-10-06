@@ -5,7 +5,7 @@ import requests
 
 from unireport.plugins.external.grafana.client import GrafanaClient
 
-DEFAULT_TIMEOUT = 10.0
+DEFAULT_TIMEOUT = 30.0
 
 
 class GrafanaAPI:
