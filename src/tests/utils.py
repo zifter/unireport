@@ -11,8 +11,6 @@ TEST_TEMP_DIR = REPO_DIR / "test-run-result"
 
 
 def recreate_folder(folder: Path):
-    if folder.exists():
-        shutil.rmtree(folder)
-
+    shutil.rmtree(folder, ignore_errors=True)
     os.makedirs(folder)
     return folder
