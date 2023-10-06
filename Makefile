@@ -14,6 +14,10 @@ setup-dev:
 test:
 	tox
 
+.PHONY: coverage
+coverage:
+	x-www-browser htmlcov/index.html
+
 .PHONY: fix
 fix:
 	tox -e isort

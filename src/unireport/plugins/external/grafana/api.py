@@ -31,7 +31,7 @@ class GrafanaAPI:
     @classmethod
     def from_url(
         cls,
-        url: str = None,
+        url: str = "http://admin:admin@localhost:3000",
         credential: Union[str, Tuple[str, str], requests.auth.AuthBase] = None,
         timeout: float = DEFAULT_TIMEOUT,
     ):
@@ -41,10 +41,6 @@ class GrafanaAPI:
         Accepts an optional credential, which is either an authentication
         token, or a tuple of (username, password).
         """
-
-        # Sanity checks and defaults.
-        if url is None:
-            url = "http://admin:admin@localhost:3000"
 
         if credential is not None and not isinstance(
             credential, (str, Tuple, requests.auth.AuthBase)
