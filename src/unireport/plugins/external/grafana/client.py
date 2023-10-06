@@ -63,7 +63,6 @@ class GrafanaClient:
             return method_call(
                 __url,
                 auth=self.auth,
-                verify=self.verify,
                 timeout=self.timeout,
                 **kwargs,
             )
