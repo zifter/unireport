@@ -1,4 +1,4 @@
-from unireport.plugin import Plugin
+from unireport import Plugin
 
 
 def test_plugin_ctor():

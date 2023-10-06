@@ -20,10 +20,8 @@ class GrafanaClient:
         port=None,
         url_path_prefix="",
         protocol="http",
-        verify=True,
         timeout=DEFAULT_TIMEOUT,
     ):
-        self.verify = verify
         self.auth = auth
         self.timeout = timeout
         self.url_host = host

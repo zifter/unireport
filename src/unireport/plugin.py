@@ -1,12 +1,20 @@
+from dataclasses import dataclass
+from pathlib import Path
+
 from jinja2 import Environment
+
+
+@dataclass
+class RenderContext:
+    output: Path | None = None
 
 
 class Plugin:
     def __init__(self):
-        self._ctx_getter = None
+        self.context: RenderContext | None = None
 
-    def setup(self, context_getter, _: Environment):
-        self._ctx_getter = context_getter
+    def setup(self, _: Environment):
+        pass
 
-    def get_context(self):
-        return self._ctx_getter()
+    def set_context(self, context: RenderContext):
+        self.context = context

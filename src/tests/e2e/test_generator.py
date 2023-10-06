@@ -1,13 +1,14 @@
 import jinja2
+from jinja2 import Environment
 
 from tests.utils import TEST_TEMPLATES_DIR
+from unireport import ReportRenderer
 from unireport.plugins.external.grafana import GrafanaAPI, GrafanaPlugin
-from unireport.unireport import Unireport
 
 
 def test_render_report(tmp_path):
-    loader = jinja2.FileSystemLoader(searchpath=TEST_TEMPLATES_DIR)
-    r = Unireport(loader=loader)
+    env = Environment(loader=jinja2.FileSystemLoader(searchpath=TEST_TEMPLATES_DIR))
+    r = ReportRenderer(jinja2_env=env)
     api = GrafanaAPI.from_url(url="http://admin:admin@localhost:3000")
     r.register(GrafanaPlugin(api))
 

@@ -1,32 +1,25 @@
-from dataclasses import dataclass
 from hashlib import md5
 from pathlib import Path
 from typing import List
 
-from jinja2 import BaseLoader, Environment, Template, select_autoescape
+from jinja2 import Environment, Template, select_autoescape
 
-from unireport.plugin import Plugin
-
-
-@dataclass
-class RenderContext:
-    output: Path
+from .plugin import Plugin, RenderContext
 
 
-class Unireport:
-    def __init__(self, loader: BaseLoader | None = None):
-        self.env = Environment(loader=loader, autoescape=select_autoescape())
+class ReportRenderer:
+    def __init__(self, jinja2_env: Environment | None = None):
+        if jinja2_env is None:
+            jinja2_env = Environment(autoescape=select_autoescape())
+
+        self.env = jinja2_env
         self.plugins: List[Plugin] = []
-        self._current_ctx: RenderContext | None = None
-
-    def get_context(self) -> RenderContext:
-        return self._current_ctx
 
     def register(self, *args):
         for plugin in args:
             plugin: Plugin
             self.plugins.append(plugin)
-            plugin.setup(self.get_context, self.env)
+            plugin.setup(self.env)
 
     def render_from_file(
         self,
@@ -49,9 +42,10 @@ class Unireport:
         return self._render(template, data, output)
 
     def _render(self, template: Template, data: {}, output: Path | None):
-        self._current_ctx = RenderContext(
-            output=output,
-        )
+        context = RenderContext(output=output)
+        for p in self.plugins:
+            p.set_context(context)
+
         try:
             result = template.render(data)
             if output:
@@ -61,4 +55,5 @@ class Unireport:
 
             return result
         finally:
-            self._current_ctx = None
+            for p in self.plugins:
+                p.set_context(context)

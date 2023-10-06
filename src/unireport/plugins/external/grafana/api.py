@@ -1,12 +1,9 @@
-import warnings
 from typing import Tuple, Union
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import urlparse
 
 import requests
-from urllib3.exceptions import InsecureRequestWarning
 
 from unireport.plugins.external.grafana.client import GrafanaClient
-from unireport.utils import as_bool
 
 DEFAULT_TIMEOUT = 10.0
 
@@ -19,7 +16,6 @@ class GrafanaAPI:
         port=None,
         url_path_prefix="",
         protocol="http",
-        verify=True,
         timeout=DEFAULT_TIMEOUT,
     ):
         self.client = GrafanaClient(
@@ -28,7 +24,6 @@ class GrafanaAPI:
             port=port,
             url_path_prefix=url_path_prefix,
             protocol=protocol,
-            verify=verify,
             timeout=timeout,
         )
         self.url = None
@@ -63,18 +58,12 @@ class GrafanaAPI:
         if credential is None and url.username:
             credential = (url.username, url.password)
 
-        # Optionally turn off SSL verification.
-        verify = as_bool(parse_qs(url.query).get("verify", [True])[0])
-        if verify is False:
-            warnings.filterwarnings("ignore", category=InsecureRequestWarning)
-
         grafana = cls(
             credential,
             protocol=url.scheme,
             host=url.hostname,
             port=url.port,
             url_path_prefix=url.path.lstrip("/"),
-            verify=verify,
             timeout=timeout,
         )
         grafana.url = original_url

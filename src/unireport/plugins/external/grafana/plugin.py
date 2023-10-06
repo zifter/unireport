@@ -14,8 +14,8 @@ class GrafanaPlugin(Plugin):
 
         self.api: GrafanaAPI = api
 
-    def setup(self, context_getter, env: Environment):
-        super().setup(context_getter, env)
+    def setup(self, env: Environment):
+        super().setup(env)
 
         env.globals["render_grafana_dashboard"] = self.render_grafana_dashboard
 
@@ -26,7 +26,7 @@ class GrafanaPlugin(Plugin):
         dashboard_filename = f"{dashboard_id}_{uuid.uuid1()}.png"
         response = self.api.query_raw(f"render{result.path}", params=params)
         response.raise_for_status()
-        with open(self.get_context().output / dashboard_filename, "wb") as f:
+        with open(self.context.output / dashboard_filename, "wb") as f:
             f.write(response.content)
 
         return dashboard_filename
