@@ -4,6 +4,7 @@ from urllib.parse import parse_qs, urlparse
 from jinja2 import Environment
 
 from unireport.exceptions import RendererException
+from unireport.logger import logger
 from unireport.plugin import Plugin
 
 from .api import GrafanaAPI
@@ -21,6 +22,8 @@ class GrafanaPlugin(Plugin):
         env.globals["render_grafana_dashboard"] = self.render_grafana_dashboard
 
     def render_grafana_dashboard(self, url: str, **kwargs) -> str:
+        logger.info(f"render grafana dashboard {url}, {kwargs}")
+
         result = urlparse(url)
         params = parse_qs(result.query)
         params.update(**kwargs)
