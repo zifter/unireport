@@ -1,6 +1,21 @@
+import http
+
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3 import Retry
 
 DEFAULT_TIMEOUT = 30
+
+
+HTTP_STATUS_FOR_RETRY = [
+    http.HTTPStatus.REQUEST_TIMEOUT,
+    http.HTTPStatus.GATEWAY_TIMEOUT,
+    http.HTTPStatus.TOO_EARLY,
+    http.HTTPStatus.TOO_MANY_REQUESTS,
+    http.HTTPStatus.INTERNAL_SERVER_ERROR,
+    http.HTTPStatus.SERVICE_UNAVAILABLE,
+    http.HTTPStatus.BAD_GATEWAY,
+]
 
 
 class TokenAuth(requests.auth.AuthBase):
@@ -21,6 +36,10 @@ class GrafanaClient:
         url_path_prefix="",
         protocol="http",
         timeout=DEFAULT_TIMEOUT,
+        retries: Retry
+        | None = Retry(
+            total=3, backoff_factor=1, status_forcelist=HTTP_STATUS_FOR_RETRY
+        ),
     ):
         self.auth = auth
         self.timeout = timeout
@@ -37,16 +56,18 @@ class GrafanaClient:
             }
 
             if self.url_port is None:
-                url_pattern = "{protocol}://{host}/{url_path_prefix}"
+                url_pattern = "{protocol}://{host}{url_path_prefix}"
             else:
                 params["port"] = self.url_port
-                url_pattern = "{protocol}://{host}:{port}/{url_path_prefix}"
+                url_pattern = "{protocol}://{host}:{port}{url_path_prefix}"
 
             return url_pattern.format(**params)
 
         self.grafana_root = construct_api_url()
 
         self.session = requests.Session()
+        if retries:
+            self.session.mount(self.grafana_root, HTTPAdapter(max_retries=retries))
 
         if auth is not None:
             if isinstance(auth, requests.auth.AuthBase):

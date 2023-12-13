@@ -1,6 +1,7 @@
 import jinja2
 import pytest
 from jinja2 import Environment
+from requests.exceptions import RetryError
 
 from tests.utils import TEST_TEMPLATES_DIR
 from unireport import ReportRenderer
@@ -67,3 +68,41 @@ def test_render_report_invalid_token():
         )
 
     assert str(excinfo.value) == "Invalid content-type text/html; charset=UTF-8"
+
+
+def test_render_report_with_retry():
+    r = ReportRenderer()
+    api = GrafanaAPI.from_url(url="https://httpbin.org", credential="fake-token")
+    r.register(GrafanaPlugin(api, render_path_template="{path}"))
+
+    with pytest.raises(RetryError) as excinfo:
+        r.render_from_string(
+            "{{ render_grafana_dashboard('https://httpbin.org/status/500') }}",
+            {},
+        )
+
+    assert "Max retries exceeded with url: /status/500" in str(excinfo.value)
+
+
+def test_render_report_with_failed_request():
+    r = ReportRenderer()
+    api = GrafanaAPI.from_url(url="https://httpbin.org", credential="fake-token")
+    r.register(GrafanaPlugin(api, render_path_template="{path}"))
+
+    with pytest.raises(RetryError) as excinfo:
+        r.render_from_string(
+            "{{ render_grafana_dashboard('https://httpbin.org/status/500') }}",
+            {},
+        )
+
+    assert "Max retries exceeded with url: /status/500" in str(excinfo.value)
+
+
+def test_render_report_with_exception_and_stub_image():
+    r = ReportRenderer()
+    api = GrafanaAPI.from_url(url="http://localhost:3000", credential="invalid-token")
+    r.register(GrafanaPlugin(api, stub_dashboard_image_on_exception=True))
+    r.render_from_string(
+        "{{ render_grafana_dashboard('http://localhost:3000/d/iUfmr5kMk/prometheus-2-22?orgId=1') }}",
+        {},
+    )

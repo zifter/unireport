@@ -1,3 +1,4 @@
+import base64
 import uuid
 from urllib.parse import parse_qs, urlparse
 
@@ -11,10 +12,17 @@ from .api import GrafanaAPI
 
 
 class GrafanaPlugin(Plugin):
-    def __init__(self, api: GrafanaAPI):
+    def __init__(
+        self,
+        api: GrafanaAPI,
+        render_path_template="/render{path}",
+        stub_dashboard_image_on_exception=False,
+    ):
         super().__init__()
 
         self.api: GrafanaAPI = api
+        self.render_path_template: str = render_path_template
+        self.stub_dashboard_image_on_exception: bool = stub_dashboard_image_on_exception
 
     def setup(self, env: Environment):
         super().setup(env)
@@ -28,19 +36,29 @@ class GrafanaPlugin(Plugin):
         params = parse_qs(result.query)
         params.update(**kwargs)
 
-        response = self.api.query_raw(f"render{result.path}", params=params)
-        response.raise_for_status()
-        header = response.headers
-        content_type = header.get("content-type")
-        if content_type not in ("image/png",):
-            raise RendererException(f"Invalid content-type {content_type}")
+        render_url = self.render_path_template.format(path=result.path)
+        response = self.api.query_raw(render_url, params=params)
 
         dashboard_id = "_".join(result.path.split("/")[-2:])
         dashboard_filename = (
             self.context.get_images_dir() / f"{dashboard_id}_{uuid.uuid1()}.png"
         )
-        with open(dashboard_filename, "wb") as f:
-            f.write(response.content)
+        try:
+            response.raise_for_status()
+
+            header = response.headers
+            content_type = header.get("content-type")
+            if content_type not in ("image/png",):
+                raise RendererException(f"Invalid content-type {content_type}")
+
+            with open(dashboard_filename, "wb") as f:
+                f.write(response.content)
+        except:
+            if not self.stub_dashboard_image_on_exception:
+                raise
+
+            with open(dashboard_filename, "wb") as f:
+                f.write(base64.urlsafe_b64decode(self.context.error_image_base64))
 
         relative = dashboard_filename.relative_to(self.context.output_dir)
         return str(relative)
