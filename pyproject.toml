@@ -51,5 +51,6 @@ optional-dependencies.testing = [
     "pytest-cov==4.1.0",
     "parameterized==0.9.0",
     "pytest-timeout==2.1.0",
+    "pytest-rerunfailures==13.0",
 ]
 dynamic = ["version", "readme"]
