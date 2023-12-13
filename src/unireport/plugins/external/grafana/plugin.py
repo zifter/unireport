@@ -53,10 +53,13 @@ class GrafanaPlugin(Plugin):
 
             with open(dashboard_filename, "wb") as f:
                 f.write(response.content)
-        except:
+        except Exception as e:
             if not self.stub_dashboard_image_on_exception:
                 raise
 
+            logger.exception(
+                f"failed to get dashboard request, use stub instead image - {e}"
+            )
             with open(dashboard_filename, "wb") as f:
                 f.write(base64.urlsafe_b64decode(self.context.error_image_base64))
 
