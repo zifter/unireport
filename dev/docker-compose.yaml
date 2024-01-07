@@ -5,7 +5,7 @@ networks:
 
 services:
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana:latest
     container_name: grafana
     ports:
       - '3000:3000'
@@ -29,7 +29,12 @@ services:
 
   renderer:
     image: grafana/grafana-image-renderer:3.8.3
-    container_name: grafana-image-renderer
+    container_name: renderer
+    environment:
+      TZ: Europe/Vilnius
+      RENDERING_VERBOSE_LOGGING: true
+      RENDERING_CLUSTERING_TIMEOUT: 30
+      LOG_LEVEL: debug
     ports:
       - '8081:8081'
     restart: unless-stopped
