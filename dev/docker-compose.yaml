@@ -32,8 +32,8 @@ services:
     container_name: renderer
     environment:
       TZ: Europe/Vilnius
-      RENDERING_VERBOSE_LOGGING: true
-      RENDERING_CLUSTERING_TIMEOUT: 30
+      RENDERING_VERBOSE_LOGGING: "true"
+      RENDERING_CLUSTERING_TIMEOUT: "30"
       LOG_LEVEL: debug
     ports:
       - '8081:8081'
