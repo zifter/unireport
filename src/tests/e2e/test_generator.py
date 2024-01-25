@@ -100,9 +100,13 @@ def test_render_report_with_failed_request():
 
 def test_render_report_with_exception_and_stub_image():
     r = ReportRenderer()
-    api = GrafanaAPI.from_url(url="http://localhost:3000", credential="invalid-token")
-    r.register(GrafanaPlugin(api, stub_dashboard_image_on_exception=True))
+    api = GrafanaAPI.from_url(url="https://httpbin.org", credential="fake-token")
+    r.register(
+        GrafanaPlugin(
+            api, render_path_template="{path}", stub_dashboard_image_on_exception=True
+        )
+    )
     r.render_from_string(
-        "{{ render_grafana_dashboard('http://localhost:3000/d/iUfmr5kMk/prometheus-2-22?orgId=1') }}",
+        "{{ render_grafana_dashboard('https://httpbin.org/status/500') }}",
         {},
     )

@@ -37,13 +37,13 @@ class GrafanaPlugin(Plugin):
         params.update(**kwargs)
 
         render_url = self.render_path_template.format(path=result.path)
-        response = self.api.query_raw(render_url, params=params)
 
         dashboard_id = "_".join(result.path.split("/")[-2:])
         dashboard_filename = (
             self.context.get_images_dir() / f"{dashboard_id}_{uuid.uuid1()}.png"
         )
         try:
+            response = self.api.query_raw(render_url, params=params)
             response.raise_for_status()
 
             header = response.headers
