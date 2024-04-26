@@ -14,13 +14,17 @@ from .api import GrafanaAPI
 class GrafanaPlugin(Plugin):
     def __init__(
         self,
-        api: GrafanaAPI,
+        apis: list[GrafanaAPI],
         render_path_template="/render{path}",
         stub_dashboard_image_on_exception=False,
     ):
         super().__init__()
 
-        self.api: GrafanaAPI = api
+        # backward compatibility
+        if isinstance(apis, GrafanaAPI):
+            apis = [apis]
+
+        self.apis: list[GrafanaAPI] = apis
         self.render_path_template: str = render_path_template
         self.stub_dashboard_image_on_exception: bool = stub_dashboard_image_on_exception
 
@@ -29,12 +33,26 @@ class GrafanaPlugin(Plugin):
 
         env.globals["render_grafana_dashboard"] = self.render_grafana_dashboard
 
-    def render_grafana_dashboard(self, url: str, **kwargs) -> str:
+    def _get_api(self, host):
+        for api in self.apis:
+            if api.client.url_host == host:
+                return api
+
+        raise RendererException(f"Can't find GrafanaAPI for {host}")
+
+    def render_grafana_dashboard(self, url: str, height: int = -1, **kwargs) -> str:
+        # default height because of that
+        # https://github.com/grafana/grafana-image-renderer/issues/488
+        return self._render_grafana_dashboard_impl(url, height=height, **kwargs)
+
+    def _render_grafana_dashboard_impl(self, url: str, **kwargs) -> str:
         logger.info(f"render grafana dashboard {url}, {kwargs}")
 
         result = urlparse(url)
         params = parse_qs(result.query)
         params.update(**kwargs)
+
+        api = self._get_api(result.hostname)
 
         render_url = self.render_path_template.format(path=result.path)
 
@@ -43,7 +61,7 @@ class GrafanaPlugin(Plugin):
             self.context.get_images_dir() / f"{dashboard_id}_{uuid.uuid1()}.png"
         )
         try:
-            response = self.api.query_raw(render_url, params=params)
+            response = api.query_raw(render_url, params=params)
             response.raise_for_status()
 
             header = response.headers

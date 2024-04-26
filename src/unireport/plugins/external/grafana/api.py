@@ -18,7 +18,7 @@ class GrafanaAPI:
         protocol="http",
         timeout=DEFAULT_TIMEOUT,
     ):
-        self.client = GrafanaClient(
+        self.client: GrafanaClient = GrafanaClient(
             auth,
             host=host,
             port=port,

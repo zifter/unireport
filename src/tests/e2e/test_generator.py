@@ -56,6 +56,20 @@ def test_render_report_unauthorized():
     assert str(excinfo.value) == "Invalid content-type text/html; charset=UTF-8"
 
 
+def test_render_report_for_wrong_host():
+    r = ReportRenderer()
+    api = GrafanaAPI.from_url(url="http://localhost:3000")
+    r.register(GrafanaPlugin([api]))
+
+    with pytest.raises(RendererException) as excinfo:
+        r.render_from_string(
+            "{{ render_grafana_dashboard('http://wronghost:3000/d/iUfmr5kMk/prometheus-2-22?orgId=1') }}",
+            {},
+        )
+
+    assert str(excinfo.value) == "Can't find GrafanaAPI for wronghost"
+
+
 def test_render_report_invalid_token():
     r = ReportRenderer()
     api = GrafanaAPI.from_url(url="http://localhost:3000", credential="invalid-token")
