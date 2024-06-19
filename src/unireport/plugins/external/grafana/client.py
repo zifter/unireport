@@ -1,10 +1,12 @@
 import http
+from typing import Tuple, Union
+from urllib.parse import urlparse
 
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
 
-DEFAULT_TIMEOUT = 30
+DEFAULT_TIMEOUT = 30.0
 
 
 HTTP_STATUS_FOR_RETRY = [
@@ -28,6 +30,40 @@ class TokenAuth(requests.auth.AuthBase):
 
 
 class GrafanaClient:
+    @classmethod
+    def from_url(
+        cls,
+        url: str = "http://admin:admin@localhost:3000",
+        auth: Union[str, Tuple[str, str], requests.auth.AuthBase] = None,
+        **kwargs,
+    ):
+        """
+        Factory method to create a `GrafanaApi` instance from a URL.
+
+        Accepts an optional credential, which is either an authentication
+        token, or a tuple of (username, password).
+        """
+
+        if auth is not None and not isinstance(
+            auth, (str, Tuple, requests.auth.AuthBase)
+        ):
+            raise TypeError(f"Argument 'credential' has wrong type: {type(auth)}")
+
+        url = urlparse(url)
+
+        # Use username and password from URL.
+        if auth is None and url.username:
+            auth = (url.username, url.password)
+
+        return GrafanaClient(
+            auth,
+            host=url.hostname,
+            port=url.port,
+            url_path_prefix=url.path.lstrip("/"),
+            protocol=url.scheme,
+            **kwargs,
+        )
+
     def __init__(
         self,
         auth,
@@ -35,7 +71,7 @@ class GrafanaClient:
         port=None,
         url_path_prefix="",
         protocol="http",
-        timeout=DEFAULT_TIMEOUT,
+        timeout: float = DEFAULT_TIMEOUT,
         retries: Retry
         | None = Retry(
             total=3, backoff_factor=1, status_forcelist=HTTP_STATUS_FOR_RETRY

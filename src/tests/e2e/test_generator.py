@@ -72,7 +72,7 @@ def test_render_report_for_wrong_host():
 
 def test_render_report_invalid_token():
     r = ReportRenderer()
-    api = GrafanaAPI.from_url(url="http://localhost:3000", credential="invalid-token")
+    api = GrafanaAPI.from_url(url="http://localhost:3000", auth="invalid-token")
     r.register(GrafanaPlugin(api))
 
     with pytest.raises(RendererException) as excinfo:
@@ -86,7 +86,7 @@ def test_render_report_invalid_token():
 
 def test_render_report_with_retry():
     r = ReportRenderer()
-    api = GrafanaAPI.from_url(url="https://httpbin.org", credential="fake-token")
+    api = GrafanaAPI.from_url(url="https://httpbin.org", auth="fake-token")
     r.register(GrafanaPlugin(api, render_path_template="{path}"))
 
     with pytest.raises(RetryError) as excinfo:
@@ -100,7 +100,7 @@ def test_render_report_with_retry():
 
 def test_render_report_with_failed_request():
     r = ReportRenderer()
-    api = GrafanaAPI.from_url(url="https://httpbin.org", credential="fake-token")
+    api = GrafanaAPI.from_url(url="https://httpbin.org", auth="fake-token")
     r.register(GrafanaPlugin(api, render_path_template="{path}"))
 
     with pytest.raises(RetryError) as excinfo:
@@ -114,7 +114,7 @@ def test_render_report_with_failed_request():
 
 def test_render_report_with_exception_and_stub_image():
     r = ReportRenderer()
-    api = GrafanaAPI.from_url(url="https://httpbin.org", credential="fake-token")
+    api = GrafanaAPI.from_url(url="https://httpbin.org", auth="fake-token")
     r.register(
         GrafanaPlugin(
             api, render_path_template="{path}", stub_dashboard_image_on_exception=True
